@@ -1,0 +1,391 @@
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+
+// --- MVP data (replace with real data later) ---
+const TRAILS = [
+  {
+    id: "cardinal-greenway",
+    name: "Cardinal Greenway",
+    miles: 62,
+    blurb:
+      "Indiana’s longest rail trail. Smooth pavement, gentle grades, and great small-town stops.",
+    towns: ["Marion", "Gas City", "Muncie", "Richmond"],
+  },
+  {
+    id: "nickel-plate",
+    name: "Nickel Plate Trail",
+    miles: 37,
+    blurb:
+      "Flat, fast, and scenic. A north–south corridor linking Peru, Denver, and beyond.",
+    towns: ["Rochester", "Denver", "Peru"],
+  },
+  {
+    id: "sweetser-switch",
+    name: "Sweetser Switch Trail",
+    miles: 4,
+    blurb:
+      "Short, family-friendly out-and-back with park access and local murals.",
+    towns: ["Sweetser"],
+  },
+  {
+    id: "converse-junction",
+    name: "Converse Junction Trail",
+    miles: 3,
+    blurb:
+      "A paved link through Converse with easy parking and café stops.",
+    towns: ["Converse"],
+  },
+];
+
+const MOCK_LEADERBOARD = [
+  { name: "A. Garlits", miles: 412, trails: 4 },
+  { name: "D. Garlits", miles: 385, trails: 4 },
+  { name: "J. Rider", miles: 303, trails: 3 },
+  { name: "K. Martin", miles: 276, trails: 2 },
+  { name: "S. Patel", miles: 201, trails: 2 },
+];
+
+export default function NCICCApp() {
+  const [email, setEmail] = useState("");
+  const [joined, setJoined] = useState(false);
+
+  const topThree = useMemo(() => MOCK_LEADERBOARD.slice(0, 3), []);
+
+  return (
+    <div className="min-h-screen bg-neutral-950 text-neutral-100">
+      <Header />
+      <Hero onJoin={(v) => setJoined(true)} />
+      <section className="mx-auto max-w-6xl px-4">
+        <QuickStats />
+        <Trails />
+        <Leaderboard />
+        <Events />
+        <Supporters />
+        <Join email={email} setEmail={setEmail} joined={joined} setJoined={setJoined} />
+      </section>
+      <Footer />
+    </div>
+  );
+}
+
+function Header() {
+  return (
+    <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/80 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500" />
+          <span className="text-lg font-semibold tracking-wide">
+            NCICC
+          </span>
+        </div>
+        <nav className="hidden gap-6 text-sm md:flex">
+          <a href="#trails" className="opacity-80 hover:opacity-100">Trails</a>
+          <a href="#leaderboard" className="opacity-80 hover:opacity-100">Leaderboard</a>
+          <a href="#events" className="opacity-80 hover:opacity-100">Events</a>
+          <a href="#join" className="opacity-80 hover:opacity-100">Join</a>
+        </nav>
+        <div className="flex items-center gap-2">
+          <GhostButton label="Log in" />
+          <PrimaryButton label="Connect Strava (soon)" />
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function Hero({ onJoin }: { onJoin: (v: boolean) => void }) {
+  return (
+    <section className="relative overflow-hidden border-b border-neutral-800">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(1000px_600px_at_70%_-20%,rgba(16,185,129,0.2),transparent_60%)]" />
+
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 py-16 md:grid-cols-2 md:py-24">
+        <div>
+          <motion.h1
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mb-4 text-3xl font-semibold tracking-tight md:text-5xl"
+          >
+            Ride the Rails. Grow the Community.
+          </motion.h1>
+          <p className="mb-6 max-w-prose text-neutral-300 md:text-lg">
+            The North Central Indiana Cycling Club (NCICC) connects riders across the Cardinal Greenway, Nickel Plate, Sweetser Switch, and Converse Junction trails—promoting healthy lives, vibrant towns, and a future where our rail trails are all linked.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <PrimaryButton label="Join the club" onClick={() => onJoin(true)} />
+            <GhostButton label="Explore trails" anchor="#trails" />
+          </div>
+          <p className="mt-4 text-xs text-neutral-400">
+            Strava and cross‑platform activity syncing coming soon.
+          </p>
+        </div>
+        <div className="relative">
+          <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 p-4 shadow-xl">
+            <div className="grid h-full w-full grid-cols-12 grid-rows-8 gap-1">
+              {/* Simple abstract "map" preview */}
+              {Array.from({ length: 96 }).map((_, i) => (
+                <div key={i} className="rounded bg-neutral-800/70" />
+              ))}
+              <div className="col-span-8 col-start-2 row-span-1 row-start-3 rounded-full bg-emerald-400/80 blur-[1px]" />
+              <div className="col-span-1 col-start-8 row-span-4 row-start-2 rounded-full bg-cyan-400/80 blur-[1px]" />
+              <div className="col-span-9 col-start-3 row-span-1 row-start-6 rounded-full bg-emerald-400/80 blur-[1px]" />
+            </div>
+          </div>
+          <p className="mt-2 text-center text-xs text-neutral-400">Interactive map and GPX overlays coming soon.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function QuickStats() {
+  return (
+    <section className="grid grid-cols-2 gap-3 py-8 md:grid-cols-4">
+      {[
+        { label: "Miles of rail trail", value: 106 },
+        { label: "Trails", value: 4 },
+        { label: "Counties impacted", value: 8 },
+        { label: "Members (goal)", value: "100+" },
+      ].map((s) => (
+        <div
+          key={s.label}
+          className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 text-center"
+        >
+          <div className="text-2xl font-semibold md:text-3xl">{s.value}</div>
+          <div className="mt-1 text-xs uppercase tracking-wide text-neutral-400">
+            {s.label}
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function Trails() {
+  return (
+    <section id="trails" className="py-10">
+      <h2 className="mb-4 text-2xl font-semibold md:text-3xl">Our Rail Trails</h2>
+      <p className="mb-6 max-w-prose text-neutral-300">
+        We focus on preserving, expanding, and eventually connecting these North Central Indiana rail trails. Click a card to learn more and plan your ride.
+      </p>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {TRAILS.map((t) => (
+          <motion.a
+            href="#"
+            key={t.id}
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.35 }}
+            className="group rounded-2xl border border-neutral-800 bg-neutral-900 p-5 hover:border-emerald-500/40"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <div className="text-lg font-medium">{t.name}</div>
+              <span className="rounded-full border border-neutral-700 px-3 py-1 text-xs text-neutral-300">
+                {t.miles} mi
+              </span>
+            </div>
+            <p className="text-sm text-neutral-300">{t.blurb}</p>
+            <div className="mt-3 text-xs text-neutral-400">{t.towns.join(" • ")}</div>
+          </motion.a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Leaderboard() {
+  return (
+    <section id="leaderboard" className="py-10">
+      <div className="mb-4 flex items-end justify-between gap-3">
+        <h2 className="text-2xl font-semibold md:text-3xl">Leaderboard (MVP)</h2>
+        <span className="text-xs text-neutral-400">Verified on‑trail miles coming soon</span>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-neutral-800">
+        <table className="w-full table-fixed border-collapse">
+          <thead className="bg-neutral-900/80 text-left text-sm">
+            <tr>
+              <th className="px-4 py-3">Rank</th>
+              <th className="px-4 py-3">Rider</th>
+              <th className="px-4 py-3">Miles</th>
+              <th className="px-4 py-3">Trails</th>
+            </tr>
+          </thead>
+          <tbody>
+            {MOCK_LEADERBOARD.map((r, idx) => (
+              <tr key={r.name} className="border-t border-neutral-800/80">
+                <td className="px-4 py-3 text-neutral-300">{idx + 1}</td>
+                <td className="px-4 py-3 font-medium">{r.name}</td>
+                <td className="px-4 py-3">{r.miles}</td>
+                <td className="px-4 py-3">{r.trails}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-3 text-xs text-neutral-400">
+        Note: This is demo data. Once Strava OAuth is enabled, rides will sync automatically and leaderboards will update in real time.
+      </div>
+    </section>
+  );
+}
+
+function Events() {
+  return (
+    <section id="events" className="py-10">
+      <h2 className="mb-4 text-2xl font-semibold md:text-3xl">Upcoming</h2>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {[
+          {
+            title: "NCICC Rail Trail Kickoff Ride",
+            when: "Sat, May 10 • 9:00 AM",
+            where: "Marion Trailhead (Cardinal Greenway)",
+          },
+          {
+            title: "Trail Day: Sweetser Clean‑up",
+            when: "Sat, Jun 7 • 8:30 AM",
+            where: "Sweetser Park Pavilion",
+          },
+          {
+            title: "Summer Challenge: 250 Rail Trail Miles",
+            when: "Jun 1–Aug 31",
+            where: "All NCICC trails",
+          },
+        ].map((e) => (
+          <div key={e.title} className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
+            <div className="text-base font-medium">{e.title}</div>
+            <div className="mt-1 text-sm text-neutral-300">{e.when}</div>
+            <div className="text-xs text-neutral-400">{e.where}</div>
+            <div className="mt-3">
+              <GhostButton label="Details" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Supporters() {
+  return (
+    <section className="py-10">
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold md:text-3xl">Community Partners</h2>
+        <p className="mt-2 max-w-prose text-neutral-300">
+          We’re building a coalition of towns, shops, and health organizations that believe in the power of trails. Want to partner with us? Let’s talk.
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="flex h-16 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 text-sm text-neutral-400">
+            Sponsor #{i + 1}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Join({
+  email,
+  setEmail,
+  joined,
+  setJoined,
+}: {
+  email: string;
+  setEmail: (v: string) => void;
+  joined: boolean;
+  setJoined: (v: boolean) => void;
+}) {
+  return (
+    <section id="join" className="py-16">
+      <div className="rounded-3xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 p-6 md:p-10">
+        <div className="mb-6 max-w-2xl">
+          <h2 className="text-2xl font-semibold md:text-3xl">Join NCICC</h2>
+          <p className="mt-2 text-neutral-300">
+            Be first to know about rides, challenges, and trail news. We’ll launch Strava syncing soon — join now and you’ll get early access.
+          </p>
+        </div>
+        {joined ? (
+          <div className="rounded-xl border border-emerald-600/40 bg-emerald-600/10 p-4 text-emerald-200">
+            Thanks! You’re on the list. We’ll be in touch.
+          </div>
+        ) : (
+          <form
+            className="flex flex-col gap-3 md:flex-row"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setJoined(true);
+            }}
+          >
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email address"
+              className="h-11 flex-1 rounded-xl border border-neutral-700 bg-neutral-900 px-4 text-sm outline-none ring-emerald-500/30 placeholder:text-neutral-500 focus:ring"
+            />
+            <PrimaryButton label="Get updates" submit />
+          </form>
+        )}
+        <p className="mt-3 text-xs text-neutral-500">
+          By joining, you agree to our future Terms & Privacy Policy.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-neutral-800 py-10">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 md:flex-row">
+        <div className="text-sm text-neutral-400">
+          © {new Date().getFullYear()} North Central Indiana Cycling Club
+        </div>
+        <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-400">
+          <a href="#" className="hover:text-neutral-200">About</a>
+          <a href="#" className="hover:text-neutral-200">Contact</a>
+          <a href="#" className="hover:text-neutral-200">Sponsors</a>
+          <a href="#" className="hover:text-neutral-200">Volunteer</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// --- UI helpers ---
+function PrimaryButton({ label, onClick, anchor, submit }: { label: string; onClick?: () => void; anchor?: string; submit?: boolean }) {
+  const Comp = submit ? "button" : anchor ? "a" : "button";
+  const props: any = {};
+  if (anchor) props.href = anchor;
+  if (onClick) props.onClick = onClick;
+  if (submit) props.type = "submit";
+  return (
+    <Comp
+      {...props}
+      className="inline-flex items-center justify-center rounded-2xl border border-emerald-500/40 bg-emerald-600/20 px-4 py-2 text-sm font-medium tracking-wide text-emerald-200 shadow-sm hover:bg-emerald-600/30"
+    >
+      {label}
+    </Comp>
+  );
+}
+
+function GhostButton({ label, onClick, anchor }: { label: string; onClick?: () => void; anchor?: string }) {
+  const Comp = anchor ? "a" : "button";
+  const props: any = {};
+  if (anchor) props.href = anchor;
+  if (onClick) props.onClick = onClick;
+  return (
+    <Comp
+      {...props}
+      className="inline-flex items-center justify-center rounded-2xl border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm font-medium tracking-wide text-neutral-200 hover:border-neutral-600"
+    >
+      {label}
+    </Comp>
+  );
+}
